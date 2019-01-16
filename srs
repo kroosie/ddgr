@@ -1,0 +1,256 @@
+Software Requirements Specification
+for
+ddgr
+
+Version 1.6
+
+Prepared by kroosie
+
+2019-01-14
+
+1.	Introduction	1
+1.1	Purpose	1
+1.2	Intended Audience	1
+1.3	Product Scope	1
+1.4	References	1
+2.	Overall Description	2
+2.1	Product Perspective	2
+2.2	Product Functions	2
+2.3	User Classes and Characteristics	2
+2.4	Operating Environment	2
+2.5	Assumptions and Dependencies	3
+3.	External Interface Requirements	3
+3.1	User Interfaces	3
+3.2	Hardware Interfaces	3
+3.3	Software Interfaces	3
+3.4	Communications Interfaces	3
+4.	System Features	4
+4.1	Usage and examples	4
+5.	Other Nonfunctional Requirements	4
+5.1	Safety Requirements	5
+6.	Other Requirements	5
+7.   Collaborators	6
+
+
+Revision History
+Name
+Date
+Reason For Changes
+Version
+
+2017-11-05
+This is the first release of `ddgr` 
+1.0
+
+2017-11-29
+- Option `--num` to specify the number of results to show per page
+- Omniprompt key `x` to toggle URL expansion on-the-fly.
+- Option `-t` to limit search by time
+- Option `--gui-browser` to open bangs directly in GUI browser
+- Retrieve next index parameters from fetched data
+- Custom user agent for ddgr 
+v1.1
+
+2017-12-08
+- Remove Pyhton3 'requests' library dependency
+- Remove Python 3.3 (EOL) support
+- Fix zsh completion script issue 
+v1.2
+
+2018-04-05
+- Copy URL at omniprompt
+- Check default stdout encoding at start
+- New environment variable DISABLE_PROMPT_COLOR 
+v1.4
+
+2018-09-10
+- Support xclip as a clipboard utility on *nix
+- Support GNU Screen and tmux as clipboard fallback
+- Support Termux clipboard on Android 
+v1.5
+
+2018-11-16
+- User interface revamped
+- DDG instant answers
+- Haiku OS clipboard support
+- Packaging preparation for PyPI 
+v1.6
+
+
+1. Introduction
+
+1.1 Purpose 
+The purpose of this document is to give a detailed description of the requirements for the “ddgr” software. It will illustrate the purpose and complete declaration for the development of system. It will also explain system constraints, interface and interactions with other external applications. This document is primarily intended to be proposed to a customer for its approval and a reference for developing the first version of the system for the development team. 
+
+1.2 Intended Audience
+The document is intended for developers, project managers, users, testers, and documentation writers.
+
+1.3 Product Scope
+ddgris a cmdline utility to search DuckDuckGo from the terminal. While googler is extremely popular among cmdline users, in many forums the need of a similar utility for privacy-aware DuckDuckGo came up. DuckDuckGo Bangs are super-cool too! So here's ddgr for you!
+Unlike the web interface, you can specify the number of search results you would like to see per page. It's more convenient than skimming through 30-odd search results per page. The default interface is carefully designed to use minimum space without sacrificing readability.A big advantage ofddgr over googler is DuckDuckGo works over the Tor network. 
+Ddgr isn't affiliated to DuckDuckGo in any way.
+
+1.4 References
+IEEE. IEEE Std 830-1998 IEEE Recommended Practice for Software Requirements Specifications. IEEE Computer Society, 1998.
+
+
+2. Overall Description
+
+2.1 Product Perspective
+Ddgr communicates with the duckduckgo server and returns the search results on your terminal.
+
+2.2 Product Functions
+Τhe users will be able to search for anything on the web. 
+
+2.3 User Classes and Characteristics
+Every user can interact with the system, probably users who care about privacy while browsing the web. 
+
+2.4 Operating Environment
+The software can operate in any operating system, but access to a Unix shell is required 
+
+2.5 Dependencies
+ddgr requires Python 3.4 or later. Only the latest patch release of each minor version is supported.
+To copy url to clipboard at the omniprompt, ddgr looks for xsel or xclip or termux-clipboard-set (in the same order) on Linux, pbcopy (default installed) on OS X, clip (default installed) on Windows and clipboard (default installed) on Haiku. It also supports GNU Screen and tmux copy-paste buffers in the absence of X11.
+Note: v1.1 and below require the Python3 requests library to make HTTPS requests. This dependency is removed in the later releases.
+
+
+3. External Interface Requirements
+
+3.1 User Interfaces
+The user interface is just a terminal.
+
+3.2 Hardware Interfaces
+Ddgr does not have any direct hardware interfaces 
+
+3.3 Software Interfaces
+Ddgr communicates with the duckduckgo server in order to get the search results.
+
+	  • Fast and clean; custom color
+    • Designed for maximum readability at minimum space
+    • Instant answers (supported by DDG html version)
+    • Custom number of results per page
+    • Navigation, browser integration
+    • Search and option completion scripts (Bash, Fish, Zsh)
+    • DuckDuckGo Bangs (along with completion)
+    • Open the first result in browser (I'm Feeling Ducky)
+    • REPL for continuous searches
+    • Keywords (e.g. filetype:mime, site:somesite.com)
+    • Limit search by time, specify region, disable safe search
+    • HTTPS proxy support, optionally disable User Agent
+    • Do Not Track set by default
+    • Supports custom url handler script or cmdline utility
+    • Thoroughly documented, man page with examples
+    • Minimal dependencies
+
+3.4 Communications Interfaces
+The communication is achieved by the web.
+
+
+4. System Features
+This section includes the requirements that specify all the fundamental actions of the software system. 
+
+4.1 Usage
+
+4.1.1
+usage: ddgr [-h] [-n N] [-r REG] [-C] [--colors COLORS] [-j] [-t SPAN]
+            [-w SITE] [-x] [-p URI] [-I] [--unsafe] [--noua] [--json] [--gb]
+            [--np] [--url-handler UTIL] [--show-browser-logs] [-v] [-d]
+            [KEYWORD [KEYWORD ...]]
+
+DuckDuckGo from the terminal.
+
+positional arguments:
+  KEYWORD               search keywords
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -n N, --num N         show N (0<=N<=25) results per page (default 10); N=0
+                        shows actual number of results fetched per page
+  -r REG, --reg REG     region-specific search e.g. 'us-en' for US (default);
+                        visit https://duckduckgo.com/params
+  -C, --nocolor         disable color output
+  --colors COLORS       set output colors (see man page for details)
+  -j, --ducky           open the first result in a web browser; implies --np
+  -t SPAN, --time SPAN  time limit search [d (1 day), w (1 wk), m (1 month)]
+  -w SITE, --site SITE  search sites using DuckDuckGo
+  -x, --expand          Show complete url in search results
+  -p URI, --proxy URI   tunnel traffic through an HTTPS proxy; URI format:
+                        [http[s]://][user:pwd@]host[:port]
+  -I, --noinstant       disable instant answer
+  --unsafe              disable safe search
+  --noua                disable user agent
+  --json                output in JSON format; implies --np
+  --gb, --gui-browser   open a bang directly in gui browser
+  --np, --noprompt      perform search and exit, do not prompt
+  --url-handler UTIL    custom script or cli utility to open results
+  --show-browser-logs   do not suppress browser output (stdout and stderr)
+  -v, --version         show program's version number and exit
+  -d, --debug           enable debugging
+
+omniprompt keys:
+  n, p, f               fetch the next, prev or first set of search results
+  index                 open the result corresponding to index in browser
+  o [index|range|a ...] open space-separated result indices, ranges or all
+  O [index|range|a ...] like key 'o', but try to open in a GUI browser
+  d keywords            new DDG search for 'keywords' with original options
+                        should be used to search omniprompt keys and indices
+  x                     toggle url expansion
+  c index               copy url to clipboard
+  q, ^D, double Enter   exit ddgr
+  ?                     show omniprompt help
+  *                     other inputs are considered as new search keywords
+
+
+4.1.2 Examples
+
+    1. DuckDuckGo hello world:
+$ ddgr hello world
+    2. I'm Feeling Ducky search:
+$ ddgr -j lucky ducks
+    3. DuckDuckGo Bang search hello world in Wikipedia:
+$ ddgr !w hello world
+$ ddgr \!w hello world // bash-specific, need to escape ! on bash
+    4. Bang alias to fire from the cmdline, open results in a GUI browser and exit:
+alias bang='ddgr --gb --np'
+$ bang !w hello world
+$ bang \!w hello world // bash-specific, need to escape ! on bash
+    5. Website specific search:
+$ ddgr -w amazon.com digital camera
+Site specific search continues at omniprompt.
+    6. Search for a specific file type:
+$ ddgr instrumental filetype:mp3
+    7. Fetch results on IPL cricket from India in English:
+$ ddgr -r in-en IPL cricket
+    8. Search quoted text:
+$ ddgr it\'s a \"beautiful world\" in spring
+    9. Show complete urls in search results (instead of only domain name):
+$ ddgr -x ddgr
+    10. Use a custom color scheme, e.g., one warm color scheme designed for Solarized Dark:
+$ ddgr --colors bjdxxy hello world
+$ DDGR_COLORS=bjdxxy ddgr hello world
+    11. Tunnel traffic through an HTTPS proxy, e.g., a local Privoxy instance listening on port 8118:
+$ ddgr --proxy localhost:8118 hello world
+By default the environment variable https_proxy (or HTTPS_PROXY) is used, if defined.
+    12. Look up n, p, o, O, q, d keywords or a result index at the omniprompt: as the omniprompt recognizes these keys or index strings as commands, you need to prefix them with d, e.g.,
+d n
+d g keywords
+d 1
+
+5. Other Nonfunctional Requirements
+
+5.1 Security Requirements
+Ddgr is an Internet search engine that emphasizes protecting searchers' privacy and avoiding the filter bubble of personalized search results. 
+
+6. Other Requirements
+Ddgr requires the Unix shell to operate.
+ddgr requires Python 3.4 or later. Only the latest patch release of each minor version is supported.
+To copy url to clipboard at the omniprompt, ddgr looks for xsel or xclip or termux-clipboard-set (in the same order) on Linux, pbcopy (default installed) on OS X, clip (default installed) on Windows and clipboard (default installed) on Haiku. It also supports GNU Screen and tmux copy-paste buffers in the absence of X11.
+Note: v1.1 and below require the Python3 requests library to make HTTPS requests. This dependency is removed in the later releases.
+
+
+7. Collaborators
+    • Arun Prakash Jana
+    • Johnathan Jenkins
+    • SZ Lin
+    • Alex Gontar
+Copyright © 2016-2019 Arun Prakash Jana
